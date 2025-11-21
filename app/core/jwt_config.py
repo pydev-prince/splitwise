@@ -2,7 +2,7 @@ import jwt
 from jwt import PyJWKError, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
 from app.core.config import settings
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 
 def create_access_token(data: dict, expires_min: int = 30):
     to_encode = data.copy()
@@ -10,7 +10,6 @@ def create_access_token(data: dict, expires_min: int = 30):
     to_encode.update({"exp": expire})
 
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm = settings.JWT_ALGO)
-
 
 def create_refresh_token(data: dict, expires_days: int = 7):
     to_encode = data.copy()
@@ -34,3 +33,15 @@ def decode_token(token : str):
         raise HTTPException(status_code=401, detail="Invalid Token")
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
+    
+def get_token_from_cookie(request : Request) -> str:
+    token = request.cookies.get("access_token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ", 1)[1]
+    
+    if not token:
+        raise HTTPException(401, "Unauthorized access")
+    
+    return token.strip()

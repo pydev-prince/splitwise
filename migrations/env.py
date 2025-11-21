@@ -12,6 +12,8 @@ from app.db.session import Base
 import app.models.user  # import ALL models here
 import app.models.group
 import app.models.group_member
+import app.models.expense_split
+import app.models.expense
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 

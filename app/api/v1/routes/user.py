@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.schemas.user import UserCreate, UserOut, UserLogin
 from app.models.user import User
-from app.services.user_service import create_user, get_user_by_id, get_all_users
+from app.services.user_service import create_user, get_user_by_id, get_all_users, edit_user
 from app.core.dependencies import authenticate_user, get_current_user
 from app.core.jwt_config import create_access_token, create_refresh_token, decode_token
 
@@ -114,3 +114,7 @@ async def logout_user(response: Response, db: AsyncSession = Depends(get_db), cu
 
     response.delete_cookie("refresh_token")
     return {"message":"Logged out"}
+
+@router.patch("/edit/{user_id}")
+async def edit(data, db:AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
+    return await edit_user(db, data, user_id=current_user.id)

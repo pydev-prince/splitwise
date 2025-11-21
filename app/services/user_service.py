@@ -3,6 +3,7 @@ from sqlalchemy.future import select
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import hash_password
+from fastapi import HTTPException
 
 async def get_user_by_email(db: AsyncSession, email:str):
     result = await db.execute(select(User).where(User.email == email))
@@ -31,3 +32,23 @@ async def create_user(db: AsyncSession, data: UserCreate):
     await db.commit()
     await db.refresh(user)
     return user
+
+async def edit_user(db : AsyncSession, data ,user_id: int):
+    user = await get_user_by_id(db, user_id)
+
+    if not user:
+        raise HTTPException(404, "User does not exist")
+    
+    if data.name:
+        user.name = data.name
+
+    if data.email:
+        user.email = data.email
+
+    #TODO: add phone number support
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
+
