@@ -1,0 +1,138 @@
+1. Invariants (This Is Quietly Powerful)
+
+    Define rules that must never be violated, then enforce them everywhere.
+
+    Examples:
+
+        Sum of splits == expense amount
+
+        No negative balances after settlement
+
+        A user cannot owe themselves
+
+        A group must always have ≥1 admin
+
+        Write these as:
+
+        Service-level checks
+
+        DB constraints where possible
+
+        Engineers who talk about invariants get taken seriously.
+
+2. Transaction Boundaries (Money = Atomic)
+
+    Every operation that touches money must be all-or-nothing.
+
+    Examples:
+
+    Add expense → insert expense + splits + balance recalculation
+
+    Undo settlement → revert balances + record history
+
+    Use DB transactions explicitly.
+    Mention this in interviews once. It lands hard.
+
+3. Read Models vs Write Models (Light CQRS)
+
+    You already feel balance calculation cost.
+
+    Introduce:
+
+    Write path → normalized tables
+
+    Read path → precomputed views (SQL views or cached tables)
+
+    You don’t need Kafka. Just conceptually separating them is enough.
+
+    This shows scalability thinking without overengineering.
+
+4. Deterministic Ordering (Hidden Bug Killer)
+
+    Sort everything deterministically:
+
+    Expenses by created_at, id
+
+    Settlements by time
+
+    Why:
+
+    Floating-point rounding
+
+    Balance netting consistency
+
+    Reproducible results
+
+    This avoids “works on my machine” money bugs.
+
+5. API Contract Discipline
+
+    Freeze your contracts.
+
+    Add:
+
+        Explicit request/response schemas
+
+        Error codes (not just messages)
+
+            Example:
+
+            {
+            "code": "INSUFFICIENT_BALANCE",
+            "message": "Settlement exceeds owed amount"
+            }
+
+
+    This makes your API client-proof.
+
+6. Rate Limiting (Even Basic)
+
+    Protect:
+
+    Login
+
+    Expense creation
+
+    Settlement creation
+
+    Even a simple middleware-based limiter counts.
+
+    Security is a feature, not a bolt-on.
+
+7. Time Awareness (You Will Be Asked This)
+
+    Store everything in:
+
+    UTC only
+
+    Convert at edges.
+
+    Mention this casually in interviews. It signals experience.
+
+8. Failure Stories (Yes, Really)
+
+    In your README:
+
+    “What can go wrong?”
+
+    “How the system prevents it”
+
+    Example:
+
+    Duplicate expense creation due to retries → prevented via idempotency keys
+
+    This is engineering storytelling. Interviewers love it.
+
+9. What to Explicitly Stop Doing Now
+
+    Do not:
+
+    Add more CRUD endpoints
+
+    Build frontend prematurely
+
+    Chase microservices
+
+    Add buzzwords without necessity
+
+    You’re done feature-hunting.

@@ -46,7 +46,7 @@ def simplify_debts(net_map: Dict[int, Decimal]):
         debtors.popleft()
 
         if new_cred > Decimal("0"):
-            creditors.appendleft[(cred_id, new_cred)]
+            creditors.appendleft([cred_id, new_cred])
         if new_debt > Decimal("0"):
             debtors.appendleft([debt_id, new_debt])
     return transfers
@@ -66,3 +66,46 @@ async def get_user_total_balance(db: AsyncSession, user_id: int):
     owed = Decimal(str(owed_res.scalar() or 0))
     
     return qround(paid - owed)
+
+async def get_overall_net_map(db: AsyncSession) -> Dict[int, Decimal]:
+    # Total paid per user
+    paid_q = (
+        select(
+            Expense.paid_by,
+            func.coalesce(func.sum(Expense.amount), 0)
+        )
+        .where(Expense.is_deleted == False)
+        .group_by(Expense.paid_by)
+    )
+    paid_res = await db.execute(paid_q)
+    paid_map = {
+        uid: qround(Decimal(str(amt)))
+        for uid, amt in paid_res.all()
+    }
+
+    # Total owed per user
+    owed_q = (
+        select(
+            ExpenseSplit.user_id,
+            func.coalesce(func.sum(ExpenseSplit.amount), 0)
+        )
+        .join(Expense, Expense.id == ExpenseSplit.expense_id)
+        .where(Expense.is_deleted == False)
+        .group_by(ExpenseSplit.user_id)
+    )
+    owed_res = await db.execute(owed_q)
+    owed_map = {
+        uid: qround(Decimal(str(amt)))
+        for uid, amt in owed_res.all()
+    }
+
+    user_ids = set(paid_map) | set(owed_map)
+
+    net = {}
+    for uid in user_ids:
+        net[uid] = qround(
+            paid_map.get(uid, Decimal("0")) -
+            owed_map.get(uid, Decimal("0"))
+        )
+
+    return net

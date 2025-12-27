@@ -120,7 +120,7 @@ async def logout_user(response: Response, db: AsyncSession = Depends(get_db), cu
 async def edit(data, db:AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     return await edit_user(db, data, user_id=current_user.id)
 
-@router.get("/users/{user_id}/balance")
+@router.get("/{user_id}/balance")
 async def user_balance(user_id: int, db: AsyncSession = Depends(get_db)):
     bal = await get_user_total_balance(db, user_id=user_id)
     return {"user_id": user_id, "amount": float(bal)}

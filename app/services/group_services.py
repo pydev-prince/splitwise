@@ -238,5 +238,82 @@ async def get_group_settlement_plan(db: AsyncSession, group_id: int):
 
     return {"net": {uid: float(amount) for uid, amount in net.items()}, "settlements": plan}
 
+async def list_group_expenses(
+        db: AsyncSession,
+        user_id: int,
+        group_id: int
+):
+    check_q = (
+        select(GroupMember)
+        .where(
+            GroupMember.group_id == group_id,
+            GroupMember.user_id == user_id
+        )
+    )
+
+    check = await db.execute(check_q)
+
+    if not check.scalar():
+        raise HTTPException(status_code=403, detail="Unauthorized Access")
+    
+
+    expense_q = (
+        select(
+            Expense,
+            User.id.label("payer_id"),
+            User.name.label("payer_name")
+        )
+        .join(User, User.id == Expense.paid_by)
+        .where(
+            Expense.group_id == group_id,
+            # Expense.is_deleted == False
+        )
+        .order_by(Expense.created_at, Expense.id)
+    )
+
+    expense_res = await db.execute(expense_q)
+    expense_rows = expense_res.all()
+
+    if not expense_res:
+        return []
+    
+    expense_ids =[row.Expense.id for row in expense_rows]
+
+    splits_q = (
+        select(
+            ExpenseSplit.expense_id,
+            ExpenseSplit.user_id,
+            ExpenseSplit.amount
+        )
+        .where(ExpenseSplit.expense_id.in_(expense_ids))
+    )
+
+    splits_res = await db.execute(splits_q)
+    split_rows = splits_res.all()
+
+    splits_map = {}
+
+    for expense_id, user_id, amount in split_rows:
+        splits_map.setdefault(expense_id, []).append({
+            "user_id" : user_id,
+            "amount": str(qround(Decimal(str(amount))))
+        })
+    
+    result = []
+    for row in expense_rows:
+        expense = row.Expense
+        result.append({
+            "id": expense.id,
+            "description": expense.description,
+            "amount": str(qround(Decimal(str(expense.amount)))),
+            "created_at": expense.created_at,
+            "paid_by": {
+                "id": row.payer_id,
+                "name": row.payer_name
+            },
+            "splits": splits_map.get(expense.id, [])
+        })
+    
+    return result
 
 # 10 - Services

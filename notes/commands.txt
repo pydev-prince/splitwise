@@ -1,2 +1,9 @@
 # Show folder structure tree command - [ tree -L 4 app ]
 # Find and delete files - [ find . -type d -name "__pycache__" -exec rm -r {} + ]
+
+# important commands
+
+-> activate venv -> [ source venv/bin/activate]
+-> run server    -> [ uvicorn app.main:app ]
+-> migrate db    -> [ alembic revision --autogenerate -m "create users table" ]
+-> apply migration -> [ alembic upgrage head ]

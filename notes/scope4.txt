@@ -1,0 +1,88 @@
+1. Failure Modes (Engineers Think in Breakage)
+
+    Explicitly handle and document:
+
+    What if DB write succeeds but response fails?
+
+    What if settlement undo is called twice?
+
+    What if two users add expenses simultaneously?
+
+    What if a user exits a group with pending balance?
+
+    Even if you just prevent or just reject, that’s fine.
+    Undefined behavior is the real sin.
+
+2. Consistency Model (Say It Out Loud)
+
+    Decide and document:
+
+    Strong consistency for money writes
+
+    Eventual consistency (if any) for reads
+
+    Even if everything is strongly consistent, stating it shows intent.
+
+    Silence looks like ignorance. Decisions look like engineering.
+
+3. Observability (Minimal, but Intentional)
+
+    Add:
+
+    Structured logs (request_id, user_id, group_id)
+
+    Log money mutations separately
+
+    You don’t need tracing systems.
+    You need debuggability.
+
+4. Backward Compatibility (API Maturity)
+
+    Pretend v1 is live.
+
+    Rules:
+
+        Never break existing responses
+
+        Add fields, don’t rename
+
+        Deprecate via docs, not code removal
+
+        This mindset alone makes interviewers trust you.
+
+5. Schema Evolution Story
+
+    Be ready to explain:
+
+    How you’d add multi-currency later
+
+    How you’d migrate balances safely
+
+    How you’d handle historical data
+
+    You don’t need to implement it.
+    You need to think it through.
+
+6. One Realistic Tradeoff (Pick One)
+
+    Example:
+
+    We compute balances on read instead of storing them to avoid drift, trading CPU for correctness.
+
+    That sentence is gold.
+
+    Every serious system has tradeoffs. Pretending otherwise is amateur hour.
+
+7. Final Quality Gate (Non-Code)
+
+    Before you stop, ensure:
+
+    README explains why, not just what
+
+    Diagrams exist (even rough)
+
+    You can explain every table and endpoint confidently
+
+    You know where bugs would appear first
+
+    If you hesitate explaining your own system, interviewers notice instantly.

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.services.group_services import create_group, add_member, list_group_for_user, list_group_members, delete_group, remove_member, exit_group, edit_group, get_group_settlement_plan
+from app.services.group_services import create_group, add_member, list_group_for_user, list_group_members, delete_group, remove_member, exit_group, edit_group, get_group_settlement_plan, list_group_expenses
 from app.schemas.group import GroupCreate, GroupMemberOut, GroupOut
 from app.schemas.balances import GroupBalanceOut
 from app.schemas.user import UserOut
@@ -11,7 +11,7 @@ from app.schemas.settlements import Settlement, SettlementHistoryCreate, Settlem
 
 router = APIRouter()
 
-@router.post("/", response_model=GroupOut)
+@router.post("/", response_model=GroupOut, description="create new group")
 async def create_new_group(
     data:GroupCreate,
     db: AsyncSession = Depends(get_db),
@@ -20,7 +20,7 @@ async def create_new_group(
     group = await create_group(db, data.name, user.id)
     return group
 
-@router.get("/my-groups", response_model=list[GroupOut])
+@router.get("/my-groups", response_model=list[GroupOut], description="get user groups")
 async def my_groups(db: AsyncSession = Depends(get_db), user = Depends(get_current_user)):
     return await list_group_for_user(db, user.id)
 
@@ -95,4 +95,12 @@ async def fetch_history(
 ):
     return await get_settlement_history(db, group_id, user.id)
 
-# 13 - Group APIs
+@router.get("/{group_id}/expenses", description="get all expenses of the group")
+async def fetch_expenses(
+    group_id: int,
+    db: AsyncSession = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    return await list_group_expenses(db, user.id, group_id)
+
+# 14 - Group APIs

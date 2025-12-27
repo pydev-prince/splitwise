@@ -1,0 +1,104 @@
+3. Settlement Intelligence (You’re Halfway There)
+
+    You already have settlement CRUD. Good.
+
+    What’s missing:
+
+    POST /api/v1/groups/{group_id}/settlements/auto
+    GET  /api/v1/groups/{group_id}/settlements/pending
+
+
+    Auto-settlement:
+
+    Computes minimum number of payments
+
+    Graph optimization problem
+
+    Huge interview brownie points
+
+    Pending settlements:
+
+        Real UX need
+
+        Distinguishes planned vs executed money flow
+
+5. Audit & History APIs (This Is Senior Thinking)
+
+    Money systems never forget.
+
+    Add:
+
+    GET /api/v1/groups/{group_id}/activity-log
+    GET /api/v1/users/me/activity
+
+
+    Track:
+
+    Expense added
+
+    Expense edited
+
+    Settlement done/undone
+
+    User joined/exited group
+
+    Don’t overbuild. Even basic logs impress.
+
+6. Idempotency & Safety (Very Rare in Fresher Projects)
+
+    Add:
+
+    POST /api/v1/expenses (Idempotent)
+    POST /api/v1/settlements (Idempotent)
+
+
+    Via:
+
+    Idempotency-Key header
+
+    If the same request hits twice:
+
+    No duplicate expense
+
+    No duplicate settlement
+
+    Mention this once in an interview → instant credibility.
+
+7. System-Level APIs (Production Awareness)
+
+    You already have:
+
+    GET /system/health/db
+
+
+    Add:
+
+    GET /api/v1/system/health
+    GET /api/v1/system/metrics
+
+
+    Metrics can expose:
+
+    Total users
+
+    Total groups
+
+    Total expenses
+
+    Simple counts. Big signal.
+
+8. Notifications (Optional, Resume Gold)
+
+    Even fake it.
+
+    GET /api/v1/notifications
+    POST /api/v1/notifications/mark-read
+
+
+    Trigger on:
+
+    Expense added involving user
+
+    Settlement request
+
+    You don’t need real emails. Store them in DB.

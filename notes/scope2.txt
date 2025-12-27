@@ -1,0 +1,100 @@
+3. Multi-Currency Support (Optional, High Impact)
+
+    Even basic support:
+
+    Store currency per group
+
+    Enforce same currency per group
+
+    Advanced:
+
+        Exchange rate snapshot at expense time
+
+        You don’t need conversion logic. Just design for it.
+
+        Design > implementation here.
+
+5. Expense Types (Real Use Case)
+
+    Add:
+
+    Equal split
+
+    Exact amount
+
+    Percentage
+
+    Shares (1:2:3)
+
+    Even if backend-only, it shows domain understanding.
+
+6. Offline / Retry Safety (Hidden Quality)
+
+    Assume:
+
+    Mobile client retries requests
+
+    Network drops mid-request
+
+    Add:
+
+        Idempotency keys
+
+        Transaction boundaries
+
+        If you use DB transactions correctly, say it proudly.
+
+8. Data Ownership & Privacy
+
+    Add rules:
+
+        You can’t view expenses of a group you’re not in
+
+        You can’t see balances of others outside shared groups
+
+        Explicit checks. No assumptions.
+
+        Security is a feature.
+
+9. Export & Reporting (Simple but Impressive)
+
+    Add:
+
+    GET /api/v1/groups/{group_id}/export
+
+
+    Return:
+
+    JSON or CSV
+
+    Expenses + settlements
+
+    This is practical and shows product thinking.
+
+10. Feature You Should Add ONLY If Time Allows
+
+    Pick one:
+
+        Expense comments
+
+        Tags (travel, food, rent)
+
+        Monthly summaries
+
+        Debt simplification graph
+
+    One is enough. Don’t go Pokémon mode.
+
+11. Final Resume-Level Polish (Not Code)
+
+    Document:
+
+        Balance algorithm
+
+        Settlement minimization logic
+
+        Tradeoffs you made
+
+        What you’d do with more time
+
+        Interviewers care about how you think, not feature count.
